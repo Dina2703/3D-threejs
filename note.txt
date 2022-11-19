@@ -1,0 +1,11 @@
+# npm create vite@latest
+# cd project-file  
+# npm install  
+# npm run dev
+
+to start D3 we need 3 objects:
+1. Scene
+2. Camera
+3. Renderer
+
+scene == container
