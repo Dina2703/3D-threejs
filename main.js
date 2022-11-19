@@ -68,6 +68,36 @@ function addStar() {
 //for example we want 200 randomly positioned stars
 Array(200).fill().forEach(addStar);
 
+//space background
+const spaceTexture = new THREE.TextureLoader().load("space.jpg");
+scene.background = spaceTexture;
+
+//Avatar
+//load a picture
+const smileyTexture = new THREE.TextureLoader().load("smiley.png");
+
+//create 3d Box Geometry
+const smiley = new THREE.Mesh(
+  new THREE.BoxGeometry(3, 3, 3),
+  new THREE.MeshBasicMaterial({ map: smileyTexture })
+);
+
+scene.add(smiley);
+
+//another object, Moon
+const moonTexture = new THREE.TextureLoader().load("moon.jpg");
+const normalTexture = new THREE.TextureLoader().load("normal.jpg");
+
+const moon = new THREE.Mesh(
+  new THREE.SphereGeometry(3, 32, 32),
+  new THREE.MeshStandardMaterial({
+    map: moonTexture,
+    normalMap: moonTexture,
+  })
+);
+
+scene.add(moon);
+
 function animate() {
   requestAnimationFrame(animate);
   torus.rotation.x += 0.01;
