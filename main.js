@@ -2,10 +2,9 @@ import "./style.css";
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 
-// for 3d app we need 3 objects: scene, camera, renderer
-const scene = new THREE.Scene();
+// Setup
 
-//most used is perspectiveCamera(), the first argument is field of view, the second is aspect ration(which is based off of the user's browser window), the third argument is view frustum
+const scene = new THREE.Scene();
 
 const camera = new THREE.PerspectiveCamera(
   75,
@@ -14,7 +13,6 @@ const camera = new THREE.PerspectiveCamera(
   1000
 );
 
-//renderer does the magic. The renderer needs to know which DOM element to use
 const renderer = new THREE.WebGLRenderer({
   canvas: document.querySelector("#bg"),
 });
@@ -22,22 +20,19 @@ const renderer = new THREE.WebGLRenderer({
 renderer.setPixelRatio(window.devicePixelRatio);
 renderer.setSize(window.innerWidth, window.innerHeight);
 camera.position.setZ(30);
+camera.position.setX(-3);
 
 renderer.render(scene, camera);
 
-// create an object, have 3 steps
-// 1-step Geometry - the {x, y, z} points that makeup a shape
+// Torus
+
 const geometry = new THREE.TorusGeometry(10, 3, 16, 100);
-
-// 2-step Material - the wrapping paper for an object
-const material = new THREE.MeshStandardMaterial({
-  color: 0xff6347,
-});
-
-// 3- step Mesh - geometry + materail
+const material = new THREE.MeshStandardMaterial({ color: 0xff6347 });
 const torus = new THREE.Mesh(geometry, material);
 
 scene.add(torus);
+
+// Lights
 
 const pointLight = new THREE.PointLight(0xffffff);
 pointLight.position.set(5, 5, 5);
@@ -45,18 +40,19 @@ pointLight.position.set(5, 5, 5);
 const ambientLight = new THREE.AmbientLight(0xffffff);
 scene.add(pointLight, ambientLight);
 
-const lightHelper = new THREE.PointLightHelper(pointLight);
-const gridHelper = new THREE.GridHelper(200, 50);
-scene.add(lightHelper, gridHelper);
+// Helpers
 
-const controls = new OrbitControls(camera, renderer.domElement);
+// const lightHelper = new THREE.PointLightHelper(pointLight)
+// const gridHelper = new THREE.GridHelper(200, 50);
+// scene.add(lightHelper, gridHelper)
+
+// const controls = new OrbitControls(camera, renderer.domElement);
 
 function addStar() {
   const geometry = new THREE.SphereGeometry(0.25, 24, 24);
   const material = new THREE.MeshStandardMaterial({ color: 0xffffff });
   const star = new THREE.Mesh(geometry, material);
 
-  //randomly generate x. y, x values for stars
   const [x, y, z] = Array(3)
     .fill()
     .map(() => THREE.MathUtils.randFloatSpread(100));
@@ -65,18 +61,17 @@ function addStar() {
   scene.add(star);
 }
 
-//for example we want 200 randomly positioned stars
 Array(200).fill().forEach(addStar);
 
-//space background
+// Background
+
 const spaceTexture = new THREE.TextureLoader().load("space.jpg");
 scene.background = spaceTexture;
 
-//Avatar
-//load a picture
+// Avatar
+
 const smileyTexture = new THREE.TextureLoader().load("smiley.png");
 
-//create 3d Box Geometry
 const smiley = new THREE.Mesh(
   new THREE.BoxGeometry(3, 3, 3),
   new THREE.MeshBasicMaterial({ map: smileyTexture })
@@ -84,7 +79,8 @@ const smiley = new THREE.Mesh(
 
 scene.add(smiley);
 
-//another object, Moon
+// Moon
+
 const moonTexture = new THREE.TextureLoader().load("moon.jpg");
 const normalTexture = new THREE.TextureLoader().load("normal.jpg");
 
@@ -92,19 +88,50 @@ const moon = new THREE.Mesh(
   new THREE.SphereGeometry(3, 32, 32),
   new THREE.MeshStandardMaterial({
     map: moonTexture,
-    normalMap: moonTexture,
+    normalMap: normalTexture,
   })
 );
 
 scene.add(moon);
 
+moon.position.z = 30;
+moon.position.setX(-10);
+
+smiley.position.z = -5;
+smiley.position.x = 2;
+
+// Scroll Animation
+
+function moveCamera() {
+  const t = document.body.getBoundingClientRect().top;
+  moon.rotation.x += 0.05;
+  moon.rotation.y += 0.075;
+  moon.rotation.z += 0.05;
+
+  smiley.rotation.y += 0.01;
+  smiley.rotation.z += 0.01;
+
+  camera.position.z = t * -0.01;
+  camera.position.x = t * -0.0002;
+  camera.rotation.y = t * -0.0002;
+}
+
+document.body.onscroll = moveCamera;
+moveCamera();
+
+// Animation Loop
+
 function animate() {
   requestAnimationFrame(animate);
+
   torus.rotation.x += 0.01;
   torus.rotation.y += 0.005;
   torus.rotation.z += 0.01;
 
-  controls.update();
+  moon.rotation.x += 0.005;
+
+  // controls.update();
+
   renderer.render(scene, camera);
 }
 
